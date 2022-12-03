@@ -1,10 +1,10 @@
 # I519genomeAssembly
 
-1. Clone the repository using the following comman
+###1. Clone the repository using the following comman
 ```
 git clone https://github.com/MahsaMonshizade/I519genomeAssembly.git
 ```
-2. singularity setup: 
+###2. singularity setup: 
 
 2.1. If you are using carbonate, follow the following link to setup the singularity
 
@@ -23,7 +23,7 @@ then run:
 singularity build genomeAssembly.sif genomeAssembly.def
 ```
 
-3. Now you have to run the bash script using the following comand:
+###3. Now you have to run the bash script using the following comand:
 
 ```
 singularity exec -e genomeAssembly.sif bash FinalProject
