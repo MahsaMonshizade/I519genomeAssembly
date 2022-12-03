@@ -9,34 +9,34 @@ cd Assembly
 
 # 1.2. Download genome data 
 
-#curl -OJX GET "https://api.ncbi.nlm.nih.gov/datasets/v1/genome/accession/GCA_000516895.1/download?include_annotation_type=GENOME_GFF,RNA_FASTA,CDS_FASTA,PROT_FASTA&filename=GCA_000516895.1.zip" -H "Accept: application/zip"
+curl -OJX GET "https://api.ncbi.nlm.nih.gov/datasets/v1/genome/accession/GCA_000516895.1/download?include_annotation_type=GENOME_GFF,RNA_FASTA,CDS_FASTA,PROT_FASTA&filename=GCA_000516895.1.zip" -H "Accept: application/zip"
 
 # 1.3. unzip the data
 
-# unzip GCA_000516895.1.zip
+unzip GCA_000516895.1.zip
 
 # 1.4. pull out the 11th assembled contigs of lengths >= 80,000 nucleotides
 
-#python3 ../fetchContig.py
+python3 ../fetchContig.py
 
-#grep ">" 11contig.fa 
+grep ">" 11contig.fa 
 
 # 2. Assembly simulation.
 #
 # 2.1 Generate random reads:
 #
-# wgsim -e 0.01 -N 5000 -r 0.001 11contig.fa r1.fq r2.fq
+wgsim -e 0.01 -N 5000 -r 0.001 11contig.fa r1.fq r2.fq
 
 # Sanity check - build FASTA for read1 sequences, check how they match up to the genome
 # using blastn:
 # 
-# seqkit fq2fa r1.fq > r1.fa
-# blastn -query r1.fa -subject 11contig.fa -outfmt 6 | sort -k9,9 -n > blastnViewR1
+#seqkit fq2fa r1.fq > r1.fa
+#blastn -query r1.fa -subject 11contig.fa -outfmt 6 | sort -k9,9 -n > blastnViewR1
 #
 # 2.2 Assembly. Create an appropriate "my.config" file first!
 
-#
-# SOAPdenovo-63mer all -s my.config -o myasmb1 -p 1  1>log 2>err
+cp configs/longread.config ./
+SOAPdenovo-63mer all -s my.config -o myasmb1 -p 1  1>log 2>err
 
 # 2.3 Look at the output.
 # 
@@ -49,15 +49,15 @@ cd Assembly
 #
 # 3.1.1. short read
 #
-#cp configs/shortread.config ./
-#wgsim -e 0.01 -N 5000 -r 0.001 -1 50 -2 50 11contig.fa shortread_r1.fq shortread_r2.fq
-#SOAPdenovo-63mer all -s shortread.config -o shortread -p 1  1>shortread_log 2>shortread_err
+cp configs/shortread.config ./
+wgsim -e 0.01 -N 5000 -r 0.001 -1 50 -2 50 11contig.fa shortread_r1.fq shortread_r2.fq
+SOAPdenovo-63mer all -s shortread.config -o shortread -p 1  1>shortread_log 2>shortread_err
 
 # 3.1.2. long read
 #
-#cp configs/longread.config ./
-#wgsim -e 0.01 -N 5000 -r 0.001 -1 500 -2 500 11contig.fa longread_r1.fq longread_r2.fq
-#SOAPdenovo-63mer all -s longread.config -o longread -p 1  1>longread_log 2>longread_err
+cp configs/longread.config ./
+wgsim -e 0.01 -N 5000 -r 0.001 -1 500 -2 500 11contig.fa longread_r1.fq longread_r2.fq
+SOAPdenovo-63mer all -s longread.config -o longread -p 1  1>longread_log 2>longread_err
 
 # 3.2 single end vs paired end
 #
@@ -69,50 +69,50 @@ SOAPdenovo-63mer all -s singleend.config -o singleend -p 1>singleend_log 2>singl
 
 # 3.2.2. paired end
 #
-#cp configs/pairedend.config ./
-#wgsim -e 0.01 -N 5000 -r 0.001 11contig.fa pairedend_r1.fq pairedend_r2.fq
-#SOAPdenovo-63mer all -s pairedend.config -o pairedend -p 1  1>pairedend_log 2>pairedend_err
+cp configs/pairedend.config ./
+wgsim -e 0.01 -N 5000 -r 0.001 11contig.fa pairedend_r1.fq pairedend_r2.fq
+SOAPdenovo-63mer all -s pairedend.config -o pairedend -p 1  1>pairedend_log 2>pairedend_err
 
 # 3.3. small vs large depth
 #
 # 3.3.1. small depth
 #
-#cp configs/smalldepth.config ./
-#wgsim -e 0.01 -N 1000 -r 0.001 11contig.fa smalldepth_r1.fq smalldepth_r2.fq
-#SOAPdenovo-63mer all -s smalldepth.config -o smalldepth -p 1  1>smalldepth_log 2>smalldepth_err
+cp configs/smalldepth.config ./
+wgsim -e 0.01 -N 1000 -r 0.001 11contig.fa smalldepth_r1.fq smalldepth_r2.fq
+SOAPdenovo-63mer all -s smalldepth.config -o smalldepth -p 1  1>smalldepth_log 2>smalldepth_err
 
 # 3.3.2. large depth
 #
-#cp configs/largedepth.config ./
-#wgsim -e 0.01 -N 10000 -r 0.001 11contig.fa largedepth_r1.fq largedepth_r2.fq
-#SOAPdenovo-63mer all -s largedepth.config -o largedepth -p 1  1>largedepth_log 2>largedepth_err
+cp configs/largedepth.config ./
+wgsim -e 0.01 -N 10000 -r 0.001 11contig.fa largedepth_r1.fq largedepth_r2.fq
+SOAPdenovo-63mer all -s largedepth.config -o largedepth -p 1  1>largedepth_log 2>largedepth_err
 
 # 3.4. small vs large error rate
 #
 # 3.4.1 small error rate
 #
-#cp configs/smallerror.config ./
-#wgsim -e 0.01 -N 5000 -r 0.0001 11contig.fa smallerror_r1.fq smallerror_r2.fq
-#SOAPdenovo-63mer all -s smallerror.config -o smallerror -p 1  1>smallerror_log 2>smallerror_err
+cp configs/smallerror.config ./
+wgsim -e 0.01 -N 5000 -r 0.0001 11contig.fa smallerror_r1.fq smallerror_r2.fq
+SOAPdenovo-63mer all -s smallerror.config -o smallerror -p 1  1>smallerror_log 2>smallerror_err
 
 # 3.4.2 large error rate
 #
-#cp configs/largeerror.config ./
-#wgsim -e 0.01 -N 5000 -r 0.1 11contig.fa largeerror_r1.fq largeerror_r2.fq
-#SOAPdenovo-63mer all -s largeerror.config -o largeerror -p 1  1>largeerror_log 2>largeerror_err
+cp configs/largeerror.config ./
+wgsim -e 0.01 -N 5000 -r 0.1 11contig.fa largeerror_r1.fq largeerror_r2.fq
+SOAPdenovo-63mer all -s largeerror.config -o largeerror -p 1  1>largeerror_log 2>largeerror_err
 
 # 3.5. small vs large mutatuin rate
 #
 # 3.5.1. small mutation rate
 #
-#cp configs/smallmutationrate.config ./
-#wgsim -e 0.0001 -N 5000 -r 0.001 11contig.fa smallmutationrate_r1.fq smallmutationrate_r2.fq
-#SOAPdenovo-63mer all -s smallmutationrate.config -o smallmutationrate -p 1  1>smallmutationrate_log 2>smallmutationrate_err
+cp configs/smallmutationrate.config ./
+wgsim -e 0.0001 -N 5000 -r 0.001 11contig.fa smallmutationrate_r1.fq smallmutationrate_r2.fq
+SOAPdenovo-63mer all -s smallmutationrate.config -o smallmutationrate -p 1  1>smallmutationrate_log 2>smallmutationrate_err
 
 # 3.5.2 large mutation rate
 #
-#cp configs/largemutationrate.config ./
-#wgsim -e 0.1 -N 5000 -r 0.001 11contig.fa largemutationrate_r1.fq largemutationrate_r2.fq
-#SOAPdenovo-63mer all -s largemutationrate.config -o largemutationrate -p 1  1>largemutationrate_log 2>largemutationrate_err
+cp configs/largemutationrate.config ./
+wgsim -e 0.1 -N 5000 -r 0.001 11contig.fa largemutationrate_r1.fq largemutationrate_r2.fq
+SOAPdenovo-63mer all -s largemutationrate.config -o largemutationrate -p 1  1>largemutationrate_log 2>largemutationrate_err
 
 
